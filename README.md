@@ -30,6 +30,7 @@ npm start
 ```
 
 Or run in watch mode:
+
 ```bash
 npm run dev
 ```
@@ -60,11 +61,13 @@ npm run dev
 ## Troubleshooting
 
 If you get a "PRIVATE_KEY not set" error:
+
 1. Make sure you've edited the `.env` file
 2. Replace the placeholder private key with your actual testnet key
 3. Ensure the key starts with `0x`
 
 If you don't have testnet funds:
+
 - Visit https://mendoza.hoodi.arkiv.network/faucet/
 - Enter your wallet address
 - Request tokens

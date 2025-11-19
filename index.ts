@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { createPublicClient, createWalletClient, http } from '@arkiv-network/sdk';
 import { privateKeyToAccount } from '@arkiv-network/sdk/accounts';
 import { mendoza } from '@arkiv-network/sdk/chains';
+import { eq } from '@arkiv-network/sdk/query';
 
 // Helper function to convert string to payload
 function stringToPayload(str: string): Uint8Array {
@@ -12,7 +13,10 @@ async function main() {
   console.log('🚀 Arkiv Hello World Demo\n');
 
   // Check if private key is set
-  if (!process.env.PRIVATE_KEY || process.env.PRIVATE_KEY === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+  if (
+    !process.env.PRIVATE_KEY ||
+    process.env.PRIVATE_KEY === '0x0000000000000000000000000000000000000000000000000000000000000000'
+  ) {
     console.error('❌ Error: Please set your PRIVATE_KEY in the .env file');
     console.log('💡 Get testnet funds from: https://mendoza.hoodi.arkiv.network/faucet/');
     process.exit(1);
@@ -55,24 +59,26 @@ async function main() {
 
     // Wait a moment for the transaction to be processed
     console.log('⏳ Waiting for transaction to be processed...');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // Query the entity we just created
     console.log('🔍 Querying for greeting entities...');
-    const entities = await publicClient
+    const result = await publicClient
       .buildQuery()
-      .where([{ key: 'type', value: 'greeting' }])
+      .where(eq('type', 'greeting'))
+      .withAttributes(true)
+      .withPayload(true)
       .fetch();
 
-    console.log(`✅ Found ${entities.length} greeting entity(ies)`);
+    console.log(`✅ Found ${result.entities.length} greeting entity(ies)`);
 
-    if (entities.length > 0) {
-      const entity = entities[0];
+    if (result.entities.length > 0) {
+      const entity = result.entities[0];
       console.log('\n📋 Entity Details:');
       console.log(`   Key: ${entity.key}`);
       console.log(`   Content: ${new TextDecoder().decode(entity.payload)}`);
       console.log(`   Attributes:`);
-      entity.attributes.forEach(attr => {
+      entity.attributes.forEach((attr) => {
         console.log(`      ${attr.key}: ${attr.value}`);
       });
     }
@@ -82,7 +88,6 @@ async function main() {
     console.log('   - Explore entity subscriptions with subscribeEntityEvents()');
     console.log('   - Try creating relationships between entities');
     console.log('   - Build a more complex application with queries');
-
   } catch (error) {
     console.error('❌ Error:', error);
     process.exit(1);
